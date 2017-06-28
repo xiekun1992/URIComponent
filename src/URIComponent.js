@@ -20,19 +20,25 @@
 			throw new Error('input should be a string');
 		}
 		this.input = input;
-		var binaryCode, bytes;
+		var binaryCode, bytes, encodedStr = '';
 		for(var i = 0; i < this.input.length; i++){
-			binaryCode = this.input.charCodeAt(i).toString(2);
+			var charCode = this.input.charCodeAt(i);
+			binaryCode = charCode.toString(2);
 			if(17 < binaryCode.length){ // 四字节
-				return this.parse(binaryCode, 4);
+				encodedStr += this.parse(binaryCode, 4);
 			}else if(11 < binaryCode.length){ // 三字节
-				return this.parse(binaryCode, 3);
+				encodedStr += this.parse(binaryCode, 3);
 			}else if(7 < binaryCode.length){ // 二字节
-				return this.parse(binaryCode, 2);
+				encodedStr += this.parse(binaryCode, 2);
 			}else{ // 单字节
-				return this.parse(binaryCode, 1);
+				if(48 <= charCode && charCode <= 57 || 65 <= charCode && charCode <= 90 || 97 <= charCode && charCode <= 122){
+					encodedStr += this.input.charAt(i);	
+				}else{
+					encodedStr += this.parse(binaryCode, 1);
+				}
 			}
 		}
+		return encodedStr;
 	}
 	EncodeURIComponent.prototype.parse = function(binaryCode, bytes){
 		var bits = this.divideBit(binaryCode, bytes);
@@ -52,7 +58,7 @@
 		return decodedStr;
 	}
 	EncodeURIComponent.prototype.divideBit = function(binaryCode, bytes){
-		if(bytes < 2) return binaryCode;
+		if(bytes < 2) return [binaryCode];
 		var bits = [], pos = 0;
 		var end = binaryCode.length - pos;
 		var start = end - 6;
@@ -69,6 +75,10 @@
 			}
 		}
 		return bits;
+	}
+	EncodeURIComponent.prototype.decode = function(input){
+		var hexArr = input.split('%');
+
 	}
 	return EncodeURIComponent;
 });
