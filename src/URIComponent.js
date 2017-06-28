@@ -47,15 +47,15 @@
 			result.push(template[i].substr(0, template[i].length - bits[i].length) + bits[i]);
 		}
 		result = result.join('');
-		var decodedStr = '';
+		var encodedStr = '';
 		for(var i = 0, j = 8; i + j <= result.length; i += 8){
 			var hexStr = parseInt(result.substr(i, j), 2).toString(16);
 			if(hexStr.length != 2){
 				hexStr = '0' + hexStr;
 			}
-			decodedStr += '%' + hexStr;
+			encodedStr += '%' + hexStr;
 		}
-		return decodedStr;
+		return encodedStr;
 	}
 	EncodeURIComponent.prototype.divideBit = function(binaryCode, bytes){
 		if(bytes < 2) return [binaryCode];
@@ -77,8 +77,17 @@
 		return bits;
 	}
 	EncodeURIComponent.prototype.decode = function(input){
-		var hexArr = input.split('%');
-
+		if(typeof input !== 'string' || input.indexOf('%') < 0) return input.toString();
+		var hexArr = input.split('%'), decodedStr = '';
+		for(var i = 0; i < hexArr.length; i++){
+			var char = hexArr[i].toLowerCase();
+			if(0 <= char && char <= 9 || 'a' <= char && char <= 'z'){
+				decodedStr += char;
+			}else{
+				decodedStr += String.fromCharCode(parseInt(char, 16));
+			}
+		}
+		return decodedStr;
 	}
 	return EncodeURIComponent;
 });
